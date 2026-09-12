@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root{
+      --navy:#10243E;
+      --navy-2:#173257;
+      --paper:#FAFAF7;
+      --card:#FFFFFF;
+      --line:#E3E1D9;
+      --text:#1A2530;
+      --muted:#5B6B7C;
+      --gold:#B9902E;
+      --good:#1F8A5F;
+      --good-bg:#E9F5EF;
+      --bad:#C1442E;
+      --bad-bg:#FBEAE6;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:var(--paper);
+      color:var(--text);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .header{
+      background:linear-gradient(180deg,var(--navy) 0%,var(--navy-2) 100%);
+      color:#fff;
+      padding:22px 20px 26px;
+    }
+    .header .instansi{
+      font-size:13px;
+      letter-spacing:.2px;
+      color:#C9D4E0;
+      margin:0 0 2px;
+    }
+    .header h1{
+      margin:0;
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:-.2px;
+    }
+    .header .jam{
+      margin-top:10px;
+      font-size:28px;
+      font-weight:700;
+      font-variant-numeric:tabular-nums;
+    }
+    .header .tanggal{
+      font-size:13px;
+      color:#C9D4E0;
+      margin-top:2px;
+    }
+    .wrap{
+      max-width:460px;
+      margin:0 auto;
+      padding:16px 16px 40px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      margin-bottom:14px;
+    }
+    .step{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .dot{
+      flex:0 0 auto;
+      width:26px;height:26px;
+      border-radius:50%;
+      background:var(--line);
+      color:var(--muted);
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:700;
+      margin-top:1px;
+    }
+    .dot.done{ background:var(--good); color:#fff; }
+    .step-body{ flex:1; min-width:0; }
+    .step-label{
+      font-size:14px;
+      font-weight:600;
+      margin:0 0 8px;
+      color:var(--text);
+    }
+    select{
+      width:100%;
+      padding:12px 14px;
+      font-size:16px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9"><path d="M1 1l6 6 6-6" stroke="%235B6B7C" stroke-width="2" fill="none" fill-rule="evenodd"/></svg>') no-repeat right 14px center;
+      appearance:none;
+      -webkit-appearance:none;
+      color:var(--text);
+    }
+    select:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+
+    .loc-pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:10px;
+      background:var(--good-bg);
+      color:var(--good);
+      font-size:14px;
+      font-weight:600;
+    }
+    .loc-pill.bad{ background:var(--bad-bg); color:var(--bad); }
+    .loc-pill.wait{ background:#F0EFE9; color:var(--muted); }
+    .loc-pill .big{ font-size:15px; }
+    .loc-pill small{ display:block; font-weight:400; color:inherit; opacity:.85; margin-top:1px; }
+
+    .cam-box{
+      position:relative;
+      width:100%;
+      aspect-ratio:3/4;
+      border-radius:12px;
+      overflow:hidden;
+      background:#0B1522;
+    }
+    video, .cam-box img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .cam-start{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .cam-start button{ width:100%; }
+    .cam-hint{
+      position:absolute; inset:auto 0 0 0;
+      padding:10px 12px;
+      font-size:12px;
+      color:#fff;
+      background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);
+    }
+    .cam-actions{
+      display:flex; gap:10px; margin-top:12px;
+    }
+    button{
+      font-family:inherit;
+      font-size:15px;
+      font-weight:600;
+      border-radius:10px;
+      border:1px solid transparent;
+      padding:13px 16px;
+      cursor:pointer;
+    }
+    .btn-outline{
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--text);
+      flex:1;
+    }
+    .btn-primary{
+      background:var(--navy);
+      color:#fff;
+      flex:1;
+    }
+    .btn-primary:disabled{
+      background:#B9C1CB;
+      cursor:not-allowed;
+    }
+    .submit-btn{
+      width:100%;
+      padding:15px 16px;
+      background:var(--gold);
+      color:#fff;
+      font-size:16px;
+      margin-top:4px;
+    }
+    .submit-btn:disabled{
+      background:#D8CDA9;
+      color:#fff;
+      cursor:not-allowed;
+    }
+    .note{
+      font-size:12.5px;
+      color:var(--muted);
+      margin:10px 2px 0;
+      line-height:1.5;
+    }
+    .status-msg{
+      font-size:13.5px;
+      padding:10px 12px;
+      border-radius:10px;
+      margin-bottom:12px;
+      display:none;
+    }
+    .status-msg.show{ display:block; }
+    .status-msg.err{ background:var(--bad-bg); color:var(--bad); }
+    .status-msg.ok{ background:var(--good-bg); color:var(--good); }
+
+    .success-screen{ display:none; text-align:center; padding:40px 20px; }
+    .success-screen.show{ display:block; }
+    .success-screen .check{
+      width:56px;height:56px;border-radius:50%;
+      background:var(--good); color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px; font-size:28px;
+    }
+    .success-screen h2{ margin:0 0 6px; font-size:19px; }
+    .success-screen p{ color:var(--muted); font-size:14px; margin:0 0 22px; }
+    .main-form{ display:block; }
+    .main-form.hide{ display:none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="instansi" id="namaInstansi">Memuat&hellip;</p>
+    <h1>Presensi Jaga</h1>
+    <div class="jam" id="jam">--:--:--</div>
+    <div class="tanggal" id="tanggal">-</div>
+  </div>
+
+  <div class="wrap">
+
+    <div id="statusMsg" class="status-msg"></div>
+
+    <form id="mainForm" class="main-form">
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot1">1</div>
+          <div class="step-body">
+            <p class="step-label">Nama</p>
+            <select id="nama" required>
+              <option value="" disabled selected>Pilih nama Anda</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot2">2</div>
+          <div class="step-body">
+            <p class="step-label">Lokasi jaga</p>
+            <select id="lokasiJaga" required>
+              <option value="" disabled selected>Pilih lokasi jaga</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot3">3</div>
+          <div class="step-body">
+            <p class="step-label">Shift</p>
+            <select id="shiftJaga" required>
+              <option value="" disabled selected>Pilih shift jaga</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot4">4</div>
+          <div class="step-body">
+            <p class="step-label">Jenis absen</p>
+            <select id="jenisAbsen" required>
+              <option value="" disabled selected>Datang atau pulang?</option>
+            </select>
+            <p class="note" id="jadwalHint" style="margin-top:8px"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot5">5</div>
+          <div class="step-body">
+            <p class="step-label">Lokasi Anda saat ini</p>
+            <div class="loc-pill wait" id="locPill">
+              <span class="big" id="locText">Mendeteksi lokasi&hellip;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">
+          <div class="dot" id="dot6">6</div>
+          <div class="step-body">
+            <p class="step-label">Foto wajah</p>
+            <div class="cam-box" id="camBox">
+              <div class="cam-start" id="camStart">
+                <button type="button" class="btn-primary" id="btnActivateCam">Aktifkan kamera</button>
+              </div>
+              <video id="video" autoplay playsinline muted style="display:none"></video>
+              <img id="fotoPreview" style="display:none" alt="Foto wajah">
+              <div class="cam-hint" id="camHint" style="display:none">Posisikan wajah di tengah layar</div>
+            </div>
+            <div class="cam-actions">
+              <button type="button" class="btn-primary" id="btnCapture" style="display:none">Ambil foto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="btnSubmit" disabled>Absen sekarang</button>
+      <p class="note">Foto dan lokasi direkam saat Anda menekan tombol di atas. Absen hanya bisa dilakukan dalam radius <span id="radiusText">250</span> meter dari <span id="instansiText">kantor</span>.</p>
+    </form>
+
+    <div class="success-screen" id="successScreen">
+      <div class="check">&#10003;</div>
+      <h2 id="successTitle">Presensi tercatat</h2>
+      <p id="successDetail"></p>
+      <button type="button" class="btn-outline" style="width:100%" id="btnReset">Absen lagi</button>
+    </div>
+
+  </div>
+
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+  // =====================================================================
+  // KONFIGURASI — samakan dengan CONFIG di Code.gs
+  // =====================================================================
+  const CONFIG = {
+    // Tempel di sini URL Web App hasil Deploy dari Apps Script (Code.gs),
+    // yang bentuknya https://script.google.com/macros/s/XXXXXXXX/exec
+    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbybmsgp5Tm34zs_iabwFNNVC-RFSfw7-GE_BDwIXwxz85nsHuYzSdmBtYtbOuxRi_Sa/exec",
+
+    // Titik koordinat kantor (dari 1°43'06.5"N 128°00'37.7"E) — harus
+    // sama dengan OFFICE_LAT/OFFICE_LNG di Code.gs.
+    OFFICE_LAT: 1.718472,
+    OFFICE_LNG: 128.010472,
+    RADIUS_METERS: 250,
+
+    NAMA_LIST: [
+      "tes_uji_coba",
+      "Yermi Charlos Kusame",
+      "Faisal Kadir",
+      "M Afrizal Bakari",
+      "Riati Lahabir",
+      "Hafid Djurumudi",
+      "Sukma Rahmawati Yamin",
+      "Hefika Dewi",
+      "Andreansyah"
+    ],
+
+    LOKASI_JAGA: ["Kantor", "Rumah Dinas"],
+    SHIFT_JAGA: ["Jaga Siang", "Jaga Malam"],
+    JENIS_ABSEN: ["Datang", "Pulang"],
+
+    JADWAL: {
+      "Jaga Siang": { datang: "07:00", pulang: "18:00" },
+      "Jaga Malam": { datang: "17:00", pulang: "08:00" }
+    },
+
+    NAMA_INSTANSI: "KPPN Tobelo"
+  };
+
+  document.getElementById('namaInstansi').textContent = CONFIG.NAMA_INSTANSI;
+  document.getElementById('instansiText').textContent = CONFIG.NAMA_INSTANSI;
+  document.getElementById('radiusText').textContent = CONFIG.RADIUS_METERS;
+
+  if (CONFIG.SCRIPT_URL.indexOf('TEMPEL_URL') !== -1){
+    const w = document.createElement('div');
+    w.className = 'status-msg show err';
+    w.style.margin = '0 16px 12px';
+    w.textContent = 'SCRIPT_URL belum diisi di index.html — absen belum bisa dikirim ke server.';
+    document.querySelector('.wrap').prepend(w);
+  }
+
+  // ---------- jam ----------
+  function tick(){
+    const d = new Date();
+    document.getElementById('jam').textContent = d.toLocaleTimeString('id-ID');
+    document.getElementById('tanggal').textContent = d.toLocaleDateString('id-ID', {
+      weekday:'long', day:'numeric', month:'long', year:'numeric'
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ---------- isi dropdown dari CONFIG ----------
+  function fillSelect(id, items){
+    const el = document.getElementById(id);
+    items.forEach(function(v){
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      el.appendChild(opt);
+    });
+  }
+  fillSelect('nama', CONFIG.NAMA_LIST);
+  fillSelect('lokasiJaga', CONFIG.LOKASI_JAGA);
+  fillSelect('shiftJaga', CONFIG.SHIFT_JAGA);
+  fillSelect('jenisAbsen', CONFIG.JENIS_ABSEN);
+
+  // tampilkan jam acuan (mis. "Jaga Siang · Datang 07.00") begitu shift & jenis dipilih
+  function updateJadwalHint(){
+    const shift = document.getElementById('shiftJaga').value;
+    const jenis = document.getElementById('jenisAbsen').value;
+    const hint = document.getElementById('jadwalHint');
+    if (shift && jenis && CONFIG.JADWAL[shift]){
+      const jam = jenis === 'Datang' ? CONFIG.JADWAL[shift].datang : CONFIG.JADWAL[shift].pulang;
+      hint.textContent = 'Jadwal ' + jenis.toLowerCase() + ' ' + shift.toLowerCase() + ': ' + jam.replace(':', '.');
+    } else {
+      hint.textContent = '';
+    }
+  }
+  document.getElementById('shiftJaga').addEventListener('change', updateJadwalHint);
+  document.getElementById('jenisAbsen').addEventListener('change', updateJadwalHint);
+
+  // ---------- state ----------
+  let currentLat = null, currentLng = null, currentJarak = null, dalamRadius = false;
+  let fotoBase64 = null;
+  let stream = null;
+
+  function haversine(lat1, lon1, lat2, lon2){
+    const R = 6371000;
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function updateDot(id, done){
+    document.getElementById(id).classList.toggle('done', !!done);
+  }
+
+  function refreshSubmitState(){
+    const nama = document.getElementById('nama').value;
+    const lokasi = document.getElementById('lokasiJaga').value;
+    const shift = document.getElementById('shiftJaga').value;
+    const jenis = document.getElementById('jenisAbsen').value;
+    updateDot('dot1', !!nama);
+    updateDot('dot2', !!lokasi);
+    updateDot('dot3', !!shift);
+    updateDot('dot4', !!jenis);
+    updateDot('dot5', dalamRadius);
+    updateDot('dot6', !!fotoBase64);
+    document.getElementById('btnSubmit').disabled =
+      !(nama && lokasi && shift && jenis && dalamRadius && fotoBase64);
+  }
+  ['nama','lokasiJaga','shiftJaga','jenisAbsen'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', refreshSubmitState);
+  });
+
+  // ---------- geolokasi ----------
+  const locPill = document.getElementById('locPill');
+  const locText = document.getElementById('locText');
+
+  function onGeoOk(pos){
+    currentLat = pos.coords.latitude;
+    currentLng = pos.coords.longitude;
+    currentJarak = haversine(currentLat, currentLng, CONFIG.OFFICE_LAT, CONFIG.OFFICE_LNG);
+    dalamRadius = currentJarak <= CONFIG.RADIUS_METERS;
+    locPill.className = 'loc-pill ' + (dalamRadius ? '' : 'bad');
+    locText.innerHTML = (dalamRadius ? 'Dalam radius kantor' : 'Di luar radius kantor') +
+      '<small>Jarak sekitar ' + Math.round(currentJarak) + ' meter</small>';
+    refreshSubmitState();
+  }
+  function onGeoErr(err){
+    dalamRadius = false;
+    locPill.className = 'loc-pill bad';
+    locText.innerHTML = 'Lokasi tidak terbaca<small>Aktifkan izin lokasi di browser, lalu muat ulang halaman</small>';
+    refreshSubmitState();
+  }
+  if (navigator.geolocation){
+    navigator.geolocation.watchPosition(onGeoOk, onGeoErr, { enableHighAccuracy:true, maximumAge:5000, timeout:15000 });
+  } else {
+    locText.textContent = 'Perangkat tidak mendukung lokasi GPS';
+  }
+
+  // ---------- kamera ----------
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const camBox = document.getElementById('camBox');
+  const camStart = document.getElementById('camStart');
+  const camHint = document.getElementById('camHint');
+  const fotoPreview = document.getElementById('fotoPreview');
+  const btnActivateCam = document.getElementById('btnActivateCam');
+  const btnCapture = document.getElementById('btnCapture');
+
+  function showCamStart(errorText){
+    camStart.style.display = 'flex';
+    video.style.display = 'none';
+    fotoPreview.style.display = 'none';
+    btnCapture.style.display = 'none';
+    if (errorText){
+      camHint.style.display = 'block';
+      camHint.textContent = errorText;
+    } else {
+      camHint.style.display = 'none';
+    }
+  }
+  function showLiveVideo(){
+    camStart.style.display = 'none';
+    video.style.display = 'block';
+    fotoPreview.style.display = 'none';
+    camHint.style.display = 'block';
+    camHint.textContent = 'Posisikan wajah di tengah layar';
+    btnCapture.style.display = 'block';
+    btnCapture.textContent = 'Ambil foto';
+  }
+  function showCapturedPhoto(dataUrl){
+    camStart.style.display = 'none';
+    video.style.display = 'none';
+    camHint.style.display = 'none';
+    fotoPreview.src = dataUrl;
+    fotoPreview.style.display = 'block';
+    btnCapture.style.display = 'block';
+    btnCapture.textContent = 'Ambil ulang';
+  }
+
+  // HARUS dipanggil dari dalam event tap/klik langsung —
+  // iOS (Safari maupun Chrome, sama-sama WebKit) menolak getUserMedia
+  // diam-diam tanpa menampilkan izin kalau dipanggil otomatis saat halaman dimuat.
+  async function startCamera(){
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      showLiveVideo();
+    } catch(e){
+      showCamStart('Kamera tidak bisa diakses (' + e.name + '). Pastikan izin kamera untuk browser ini aktif, lalu tap tombol di atas lagi.');
+    }
+  }
+
+  btnActivateCam.addEventListener('click', startCamera);
+
+  btnCapture.addEventListener('click', function(){
+    if (fotoBase64){
+      // sedang menampilkan foto -> tombol ini berarti "ambil ulang"
+      fotoBase64 = null;
+      startCamera();
+      refreshSubmitState();
+      return;
+    }
+    const w = 480;
+    const h = Math.round(w * (video.videoHeight / video.videoWidth || 4/3));
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(w, 0); ctx.scale(-1, 1); // mirror agar sesuai preview
+    ctx.drawImage(video, 0, 0, w, h);
+    fotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+    if (stream){ stream.getTracks().forEach(t => t.stop()); }
+    showCapturedPhoto(fotoBase64);
+    refreshSubmitState();
+  });
+
+  // ---------- submit ----------
+  const form = document.getElementById('mainForm');
+  const statusMsg = document.getElementById('statusMsg');
+  const btnSubmit = document.getElementById('btnSubmit');
+
+  function showStatus(msg, isErr){
+    statusMsg.textContent = msg;
+    statusMsg.className = 'status-msg show ' + (isErr ? 'err' : 'ok');
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (btnSubmit.disabled) return;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Mengirim...';
+    statusMsg.className = 'status-msg';
+
+    const formData = new FormData();
+    formData.append('nama', document.getElementById('nama').value);
+    formData.append('lokasiJaga', document.getElementById('lokasiJaga').value);
+    formData.append('shiftJaga', document.getElementById('shiftJaga').value);
+    formData.append('jenisAbsen', document.getElementById('jenisAbsen').value);
+    formData.append('lat', currentLat);
+    formData.append('lng', currentLng);
+    formData.append('jarak', currentJarak);
+    formData.append('fotoBase64', fotoBase64);
+
+    fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res.ok){
+          document.getElementById('successTitle').textContent = 'Presensi tercatat';
+          document.getElementById('successDetail').textContent = res.message + ' (' + res.waktu + ')';
+          form.classList.add('hide');
+          document.getElementById('successScreen').classList.add('show');
+        } else {
+          showStatus(res.message, true);
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Absen sekarang';
+        }
+      })
+      .catch(function(err){
+        showStatus('Gagal mengirim, cek koneksi internet lalu coba lagi. (' + err.message + ')', true);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Absen sekarang';
+      });
+  });
+
+  document.getElementById('btnReset').addEventListener('click', function(){
+    document.getElementById('successScreen').classList.remove('show');
+    form.classList.remove('hide');
+    form.reset();
+    document.getElementById('jadwalHint').textContent = '';
+    fotoBase64 = null;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Absen sekarang';
+    statusMsg.className = 'status-msg';
+    startCamera(); // tap tombol ini juga dihitung sebagai gesture, jadi boleh langsung nyalakan lagi
+    refreshSubmitState();
+  });
+</script>
+</body>
+</html>
